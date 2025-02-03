@@ -2,13 +2,13 @@ import './App.css'
 import { useEffect, useState } from 'react'
 
 function App() {
-  const [data, setData] = useState('');
+  const [msg, setMsg] = useState('');
   useEffect(() => {
     const fetchData = async () => {
       try{
         const response = await fetch('/api/home');
-        const result = await response.json();
-        setData(result);
+        const data = await response.json();
+        setMsg(data.data);
       }
       catch(Error){
         console.log(Error)
@@ -21,7 +21,7 @@ function App() {
   return (
     <>
       <h1 className="text-3xl font-bold underline">
-        Hello world! {data}
+        {msg}
       </h1>
     </>
   )
