@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from './Pages/Home';
 import Register from './Pages/Register';
+import Game from './Pages/Game';
 
 function App() {
   // const [msg, setMsg] = useState('');
@@ -30,6 +31,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />}/>
           <Route path="/register" element={<Register />}/>
+          <Route path="/game" element={<Game />}/>
         </Routes>
       </BrowserRouter>
     </>
