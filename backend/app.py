@@ -11,6 +11,7 @@ def Register():
     data:dict = request.get_json()
     session['user_name'] = data.get('name')
     session['email'] = data.get('email')
+    session['password'] = data.get('password')
     return jsonify({"message": "Data Received", "username": session['user_name']}), 200
 
 @app.route('/get_username', methods=['GET'])

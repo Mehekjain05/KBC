@@ -5,6 +5,7 @@ const Register: React.FC = () => {
   const [data, setData] = useState({
     name: "",
     email: "",
+    password : "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +66,16 @@ const Register: React.FC = () => {
           name="email"
           placeholder="Email"
           value={data.email}
+          onChange={handleChange}
+          className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={data.password}
           onChange={handleChange}
           className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           required
