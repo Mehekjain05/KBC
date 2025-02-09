@@ -1,10 +1,14 @@
 from flask import Flask, request, jsonify, session
+from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 
 app = Flask(__name__)
 load_dotenv()
 app.secret_key = os.getenv('secret_key')
+client = MongoClient('mongodb+srv://mehek:9082888529@kbc-app.eoinr.mongodb.net/') 
+db = client['demo'] 
+collection = db['data'] 
 
 @app.route("/register", methods = ['GET', 'POST'])
 def Register():
@@ -12,6 +16,7 @@ def Register():
     session['user_name'] = data.get('name')
     session['email'] = data.get('email')
     session['password'] = data.get('password')
+    collection.insert_one(data)
     return jsonify({"message": "Data Received", "username": session['user_name']}), 200
 
 @app.route('/get_username', methods=['GET'])
