@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Register: React.FC = () => {
+const Login: React.FC = () => {
   const [data, setData] = useState({
     name: "",
-    email: "",
     password : "",
   });
 
@@ -22,7 +21,7 @@ const Register: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch("api/register", {
+      const response = await fetch("api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,10 +32,10 @@ const Register: React.FC = () => {
       const result = await response.json();
 
       if (response.ok) {
-        console.log("Registration successful:", result);
-        navigate("/login"); // Redirect to game screen after registration
+        console.log("User Logged In:", result);
+        navigate("/game"); // Redirect to game screen after registration
       } else {
-        setError(result.error || "Registration failed");
+        setError(result.error || "Login failed");
       }
     } catch (error) {
       setError("Server error. Please try again later.");
@@ -46,7 +45,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black px-6">
-      <h2 className="text-3xl text-white mb-6 font-extrabold">Register to Play</h2>
+      <h2 className="text-3xl text-white mb-6 font-extrabold">Login to Play</h2>
 
       <form
         className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-xl space-y-4 h-[400px]"
@@ -57,15 +56,6 @@ const Register: React.FC = () => {
           name="name"
           placeholder="Full Name"
           value={data.name}
-          onChange={handleChange}
-          className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={data.email}
           onChange={handleChange}
           className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           required
@@ -91,7 +81,7 @@ const Register: React.FC = () => {
             type="submit"
             className="relative inline-flex items-center justify-center px-6 py-2 text-base font-normal text-white bg-black border border-transparent rounded-full w-full"
           >
-            Register
+            Login
           </button>
         </div>
       </form>
@@ -106,4 +96,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default Login;
