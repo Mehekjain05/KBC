@@ -96,12 +96,12 @@ const Register: React.FC = () => {
         </div>
       </form>
 
-      {/* <p className="text-gray-400 mt-4">
+      <p className="text-gray-400 mt-4">
         Already have an account?{" "}
         <NavLink to="/login" className="text-cyan-400 hover:underline">
           Login here
         </NavLink>
-      </p> */}
+      </p>
     </div>
   );
 };

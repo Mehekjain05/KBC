@@ -64,7 +64,7 @@ const Home = (props: Props) => {
             <div className="flex flex-col items-center justify-center px-8 mt-12 space-y-5 sm:space-y-0 sm:px-0 sm:space-x-5 sm:flex-row mb-42">
               <div className="relative inline-flex items-center justify-center w-full sm:w-auto group">
                 <div className="absolute transition-all duration-200 rounded-full -inset-px bg-gradient-to-r from-cyan-500 to-purple-500 group-hover:shadow-lg group-hover:shadow-cyan-500/50"></div>
-                <NavLink to='/register'><a href="#" title="" className="relative inline-flex items-center justify-center px-6 py-2 text-base font-normal text-white bg-black border border-transparent rounded-full" role="button"> Start Playing</a></NavLink>
+                <NavLink to='/register'><a href="#" title="" className="relative inline-flex items-center justify-center px-6 py-2 text-base font-normal text-white bg-black border border-transparent rounded-full" role="button"> Let the play begin</a></NavLink>
               </div>
             </div>
           </div>
