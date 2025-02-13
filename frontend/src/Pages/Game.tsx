@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 
+interface PrizeLevel {
+  level: number;
+  amount: string;
+  isMilestone?: boolean;
+}
 const Game = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [timer, setTimer] = useState(60);
@@ -22,6 +27,25 @@ const Game = () => {
       options: ["J.K. Rowling", "Harper Lee", "Mark Twain", "Ernest Hemingway"],
       correctAnswer: 1,
     },
+  ];
+
+  const prizeLevels: PrizeLevel[] = [
+    { level: 16, amount: "7 Crores", isMilestone: true },
+    { level: 15, amount: "1 Crore", isMilestone: true },
+    { level: 14, amount: "50,00,000" },
+    { level: 13, amount: "25,00,000" },
+    { level: 12, amount: "12,50,000" },
+    { level: 11, amount: "6,40,000" },
+    { level: 10, amount: "3,20,000" },
+    { level: 9, amount: "1,60,000" },
+    { level: 8, amount: "80,000" },
+    { level: 7, amount: "40,000", isMilestone: true },
+    { level: 6, amount: "20,000" },
+    { level: 5, amount: "10,000" },
+    { level: 4, amount: "5,000" },
+    { level: 3, amount: "3,000" },
+    { level: 2, amount: "2,000" },
+    { level: 1, amount: "1,000" }
   ];
 
   useEffect(() => {
@@ -117,7 +141,7 @@ const Game = () => {
 
       {/* Navigation Drawer */}
       <div
-        className={`fixed top-0 left-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 right-0 z-40 w-96 h-screen p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 ${isDrawerOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
         <h5 className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
@@ -141,28 +165,32 @@ const Game = () => {
           </svg>
         </button>
         {/* Menu Content */}
-        <div className="py-4 overflow-y-auto">
-          <ul className="space-y-2 font-medium">
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
-                  <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
-                  <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
-                </svg>
-                <span className="ms-3">Dashboard</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg className="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
-                  <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
-                </svg>
-                <span className="flex-1 ms-3 whitespace-nowrap">Kanban</span>
-                <span className="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">Pro</span>
-              </a>
-            </li>
-            
-          </ul>
+        <div className="max-w-md mx-auto bg-purple-900 p-4 rounded-lg shadow-lg">
+          <div className="space-y-2">
+            {prizeLevels.map((prize) => (
+              <div
+                key={prize.level}
+                className={`flex items-center justify-between p-2 rounded ${prize.isMilestone
+                    ? 'bg-purple-700 text-yellow-400 font-bold'
+                    : 'bg-purple-800 text-yellow-200'
+                  }`}
+              >
+                <span className="text-lg w-12">{prize.level}</span>
+                <span className="text-lg">₹ {prize.amount}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-between text-white/80">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full border-2 border-white/80 flex items-center justify-center">
+                <span className="text-xs">?</span>
+              </div>
+              <span>Lifeline</span>
+            </div>
+            <div className="text-center px-4 py-1 border border-white/80 rounded">
+              50:50
+            </div>
+          </div>
         </div>
       </div>
 
