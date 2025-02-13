@@ -10,6 +10,7 @@ const Game = () => {
   const [timer, setTimer] = useState(60);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [user, setUser] = useState('');
 
   const questions = [
     {
@@ -91,6 +92,13 @@ const Game = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
+  const userName = async () => {
+    const response = await fetch('/api/get_username');
+    const data = await response.json();
+    setUser(data.username);
+
+  }
+
   return (
     <div className="bg-gradient-to-b from-black to-purple-900 w-screen h-screen flex flex-col items-center justify-center p-8">
       {/* Timer Circle */}
@@ -171,8 +179,8 @@ const Game = () => {
               <div
                 key={prize.level}
                 className={`flex items-center justify-between p-2 rounded ${prize.isMilestone
-                    ? 'bg-purple-700 text-yellow-400 font-bold'
-                    : 'bg-purple-800 text-yellow-200'
+                  ? 'bg-purple-700 text-yellow-400 font-bold'
+                  : 'bg-purple-800 text-yellow-200'
                   }`}
               >
                 <span className="text-lg w-12">{prize.level}</span>
@@ -233,6 +241,7 @@ const Game = () => {
         >
           Show navigation
         </button>
+        <button className="text-white" onClick={userName}>Welcome, {user} !!</button>
       </div>
     </div>
   );
