@@ -39,15 +39,15 @@ def Register():
 @app.route("/login", methods=['POST'])
 def Login():
     data = request.get_json()
-    username = data.get('name')
+    email = data.get('email')
     password = data.get('password')
 
-    user = collection.find_one({"user_name": username})
+    user = collection.find_one({"email": email})
 
     if user:
         if bcrypt.check_password_hash(user['password'], password):
-            session['user_name'] = user['user_name']
             session['email'] = user['email']
+            session['user_name'] = user['user_name']
             return jsonify({"message": "Login Successful"}), 200
         else:
             return jsonify({"message": "Invalid Credentials"}), 401

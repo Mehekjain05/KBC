@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const [data, setData] = useState({
-    name: "",
+    email: "",
     password : "",
   });
 
@@ -52,10 +52,10 @@ const Login: React.FC = () => {
         onSubmit={handleSubmit}
       >
         <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={data.name}
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={data.email}
           onChange={handleChange}
           className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           required
