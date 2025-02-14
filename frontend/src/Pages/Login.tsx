@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Login: React.FC = () => {
+const Login: React.FC = ({ setName }) => {
   const [data, setData] = useState({
+    name : "",
     email: "",
-    password : "",
+    password: "",
   });
-
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -15,11 +15,12 @@ const Login: React.FC = () => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    setName(data.name);
     try {
       const response = await fetch("api/login", {
         method: "POST",
@@ -51,6 +52,15 @@ const Login: React.FC = () => {
         className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-xl space-y-4 h-[400px]"
         onSubmit={handleSubmit}
       >
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          onChange={handleChange}
+          className="w-full p-3 mt-5 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          required
+        />
+
         <input
           type="email"
           name="email"

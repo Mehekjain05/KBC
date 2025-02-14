@@ -23,6 +23,7 @@ function App() {
   //   }
   //   fetchData();
   // })
+  const [name, setName] = useState('');
   return (
     <>
       {/* <h1 className="text-3xl font-bold underline">
@@ -32,8 +33,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />}/>
           <Route path="/register" element={<Register />}/>
-          <Route path="/login" element={<Login />}/>
-          <Route path="/game" element={<Game />}/>
+          <Route path="/login" element={<Login setName = {setName}/>}/>
+          <Route path="/game" element={<Game name = {name}/>}/>
         </Routes>
       </BrowserRouter>
     </>

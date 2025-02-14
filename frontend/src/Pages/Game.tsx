@@ -5,12 +5,15 @@ interface PrizeLevel {
   amount: string;
   isMilestone?: boolean;
 }
-const Game = () => {
+interface GameProps {
+  name: string;
+}
+
+const Game: React.FC<GameProps> = ({name}) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [timer, setTimer] = useState(60);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [user, setUser] = useState('');
 
   const questions = [
     {
@@ -92,12 +95,13 @@ const Game = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  const userName = async () => {
-    const response = await fetch('/api/get_username');
-    const data = await response.json();
-    setUser(data.username);
+  // const userName = async () => {
+  //   const response = await fetch('/api/get_username');
+  //   const data = await response.json();
+  //   setUser(data.username);
 
-  }
+  // }
+  
 
   return (
     <div className="bg-gradient-to-b from-black to-purple-900 w-screen h-screen flex flex-col items-center justify-center p-8">
@@ -240,7 +244,7 @@ const Game = () => {
 
         </button>
 
-        <button className="text-white" onClick={userName}>Welcome, {user} !!</button>
+        <button className="text-white">Welcome, {name || 'Player'}!!</button>
 
         <button
           onClick={toggleDrawer}

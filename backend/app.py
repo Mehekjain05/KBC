@@ -51,7 +51,7 @@ def Login():
             return jsonify({"message": "Login Successful"}), 200
         else:
             return jsonify({"message": "Invalid Credentials"}), 401
-    return jsonify({"message": "User does not exist"}), 404 
+    return jsonify({"message": "User does not exist"}), 404
 
 
 @app.route('/get_username', methods=['GET'])
