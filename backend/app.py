@@ -76,25 +76,26 @@ def generate_question():
     response = question_answer_generation()
     # data = json.loads(response)
     # questions_list = json.loads(data["Questions"])
-    cleaned_response = re.sub(r"\\n|\\", "", response)
+    print(response)
+    # cleaned_response = re.sub(r"\\n|\\", "", response)
     
-    # Extract the JSON part from the response
-    match = re.search(r'\[.*\]', cleaned_response, re.DOTALL)
-    if match:
-        json_data = match.group()
+    # # Extract the JSON part from the response
+    # match = re.search(r'\[.*\]', cleaned_response, re.DOTALL)
+    # if match:
+    #     json_data = match.group()
 
-        parsed_data = json.loads(json_data)
+    #     parsed_data = json.loads(json_data)
         
-        # Convert to desired format
-        formatted_data = []
-        for item in parsed_data:
-            formatted_data.append({
-                "question": item["question"],
-                "options": item["options"],
-                "correctAnswer": item["options"].index(item["correct_option"])
-            })
+    #     # Convert to desired format
+    #     formatted_data = []
+    #     for item in parsed_data:
+    #         formatted_data.append({
+    #             "question": item["question"],
+    #             "options": item["options"],
+    #             "correctAnswer": item["options"].index(item["correct_option"])
+    #         })
     if response:
-        return jsonify({"Questions" : formatted_data}), 200
+        return jsonify({"Questions" : response}), 200
     else: 
         return jsonify({"Error" : "Question couldnt be generated"}), 404
 

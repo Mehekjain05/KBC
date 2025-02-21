@@ -8,30 +8,61 @@ interface PrizeLevel {
 interface GameProps {
   name: string;
 }
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
 
-const Game: React.FC<GameProps> = ({name}) => {
+
+const Game: React.FC<GameProps> = ({ name }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [timer, setTimer] = useState(60);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const questions = [
-    {
-      question: "What was Draco Malfoy's screen name in the film Study?",
-      options: ["Scorpius", "Draco", "Milli", "Cuthbert"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Mars", "Jupiter", "Venus"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Who wrote 'To Kill a Mockingbird'?",
-      options: ["J.K. Rowling", "Harper Lee", "Mark Twain", "Ernest Hemingway"],
-      correctAnswer: 1,
-    },
-  ];
+
+  // const questions = [
+  //   {
+  //     question: "What was Draco Malfoy's screen name in the film Study?",
+  //     options: ["Scorpius", "Draco", "Milli", "Cuthbert"],
+  //     correctAnswer: 1,
+  //   },
+  //   {
+  //     question: "Which planet is known as the Red Planet?",
+  //     options: ["Earth", "Mars", "Jupiter", "Venus"],
+  //     correctAnswer: 1,
+  //   },
+  //   {
+  //     question: "Who wrote 'To Kill a Mockingbird'?",
+  //     options: ["J.K. Rowling", "Harper Lee", "Mark Twain", "Ernest Hemingway"],
+  //     correctAnswer: 1,
+  //   },
+  // ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('api/generate_questions');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const json = await response.json();
+        console.log(json);
+        setQuestions(json.Questions || []);
+      } catch (e) {
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
 
   const prizeLevels: PrizeLevel[] = [
     { level: 16, amount: "7 Crores", isMilestone: true },
@@ -66,13 +97,14 @@ const Game: React.FC<GameProps> = ({name}) => {
 
   const nextQuestion = () => {
     if (questionIndex < questions.length - 1) {
-      setQuestionIndex(questionIndex + 1);
+      setQuestionIndex((prev) => prev + 1);
+      setTimer(60); // Reset timer
     } else {
       alert("Game Over!");
     }
-    setTimer(60);
     setSelectedAnswer(null);
   };
+
 
   const generateDots = () => {
     const dots = [];
@@ -101,55 +133,54 @@ const Game: React.FC<GameProps> = ({name}) => {
   //   setUser(data.username);
 
   // }
-  
+
 
   return (
     <div className="bg-gradient-to-b from-black to-purple-900 w-screen h-screen flex flex-col items-center justify-center p-8">
-      {/* Timer Circle */}
-      <div className="relative flex items-center justify-center mb-10 mt-24">
-        <div className="absolute">{generateDots()}</div>
-        <div className="w-32 h-32 rounded-full border-4 border-white flex items-center justify-center">
-          <span className="text-white text-4xl font-bold">{timer}</span>
-        </div>
-      </div>
+      {loading ? (
+        <p className="text-white">Loading data...</p>
+      ) : error ? (
+        <p className="text-red-500">Error: {error.message}</p>
+      ) : (
+        <>
+          {/* Timer Circle */}
+          <div className="relative flex items-center justify-center mb-10 mt-24">
+            <div className="absolute">{generateDots()}</div>
+            <div className="w-32 h-32 rounded-full border-4 border-white flex items-center justify-center">
+              <span className="text-white text-4xl font-bold">{timer}</span>
+            </div>
+          </div>
 
-      {/* Question */}
-      <div className="w-full max-w-5xl mb-10 mt-16">
-        <div className="bg-gradient-to-r from-purple-900 to-black text-white p-6 rounded-lg text-center text-xl font-semibold border-2 border-x-zinc-500">
-          {questions[questionIndex].question}
-        </div>
-      </div>
+          {/* Question & Answers */}
+          <div className="w-full max-w-5xl mb-10 mt-16">
+            {questions.length > 0 && questions[questionIndex] ? (
+              <div className="bg-gradient-to-r from-purple-900 to-black text-white p-6 rounded-lg text-center text-xl font-semibold border-2 border-x-zinc-500">
+                {questions[questionIndex].question}
+              </div>
+            ) : (
+              <p className="text-white">No questions available.</p>
+            )}
+          </div>
 
-      {/* Answer Options */}
-      <div className="w-full max-w-5xl grid grid-cols-2 gap-4">
-        {questions[questionIndex].options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedAnswer(index)}
-            className={`
-              p-4 text-white text-lg font-semibold
-              ${selectedAnswer === index
-                ? "bg-orange-500"
-                : "bg-gradient-to-r from-purple-900 to-black"
-              }
-              rounded-lg border-2 border-x-zinc-500 
-              hover:bg-blue-700 transition-colors
-              flex items-center
-            `}
-          >
-            <span className="mr-3">{String.fromCharCode(65 + index)}:</span>
-            {option}
+          <div className="w-full max-w-5xl grid grid-cols-2 gap-4">
+            {questions[questionIndex].options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedAnswer(index)}
+                className={`p-4 text-white text-lg font-semibold ${selectedAnswer === index ? "bg-orange-500" : "bg-gradient-to-r from-purple-900 to-black"
+                  } rounded-lg border-2 border-x-zinc-500 hover:bg-blue-700 transition-colors flex items-center`}
+              >
+                <span className="mr-3">{String.fromCharCode(65 + index)}:</span>
+                {option}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={nextQuestion} className="mt-6 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-500 transition">
+            Next Question
           </button>
-        ))}
-      </div>
-
-      {/* Next Question Button */}
-      <button
-        onClick={nextQuestion}
-        className="mt-6 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-500 transition"
-      >
-        Next Question
-      </button>
+        </>
+      )}
 
       {/* Navigation Drawer */}
       <div
