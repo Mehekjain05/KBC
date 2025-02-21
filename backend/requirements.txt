@@ -2,3 +2,4 @@ flask
 python-dotenv
 pymongo
 flask-bcrypt
+google-genai

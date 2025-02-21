@@ -3,6 +3,9 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
+from utils import question_answer_generation
+import json
+import re
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app) 
@@ -67,6 +70,33 @@ def logout():
     session.clear()
     return jsonify({"message": "User logged out"}), 200    
 
+
+@app.route('/generate_questions', methods = ['GET'])
+def generate_question():
+    response = question_answer_generation()
+    # data = json.loads(response)
+    # questions_list = json.loads(data["Questions"])
+    cleaned_response = re.sub(r"\\n|\\", "", response)
+    
+    # Extract the JSON part from the response
+    match = re.search(r'\[.*\]', cleaned_response, re.DOTALL)
+    if match:
+        json_data = match.group()
+
+        parsed_data = json.loads(json_data)
+        
+        # Convert to desired format
+        formatted_data = []
+        for item in parsed_data:
+            formatted_data.append({
+                "question": item["question"],
+                "options": item["options"],
+                "correctAnswer": item["options"].index(item["correct_option"])
+            })
+    if response:
+        return jsonify({"Questions" : formatted_data}), 200
+    else: 
+        return jsonify({"Error" : "Question couldnt be generated"}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
