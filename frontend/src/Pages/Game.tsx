@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import chat from '../assets/chat.png'
+import { useNavigate } from "react-router-dom";
 interface PrizeLevel {
   level: number;
   amount: string;
@@ -11,7 +12,7 @@ interface GameProps {
 interface Question {
   question: string;
   options: string[];
-  correctAnswer: number;
+  correct_answer: number;
 }
 
 
@@ -23,6 +24,8 @@ const Game: React.FC<GameProps> = ({ name }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
+  const [finalReward, setFinalReward] = useState(""); // Track final reward
 
 
   // const questions = [
@@ -63,24 +66,24 @@ const Game: React.FC<GameProps> = ({ name }) => {
     fetchData();
   }, []);
 
-
+  const navigate = useNavigate();
   const prizeLevels: PrizeLevel[] = [
-    { level: 16, amount: "7 Crores", isMilestone: true },
-    { level: 15, amount: "1 Crore", isMilestone: true },
-    { level: 14, amount: "50,00,000" },
-    { level: 13, amount: "25,00,000" },
-    { level: 12, amount: "12,50,000" },
-    { level: 11, amount: "6,40,000" },
-    { level: 10, amount: "3,20,000" },
-    { level: 9, amount: "1,60,000" },
-    { level: 8, amount: "80,000" },
-    { level: 7, amount: "40,000", isMilestone: true },
-    { level: 6, amount: "20,000" },
-    { level: 5, amount: "10,000" },
-    { level: 4, amount: "5,000" },
-    { level: 3, amount: "3,000" },
+    { level: 1, amount: "1,000" },
     { level: 2, amount: "2,000" },
-    { level: 1, amount: "1,000" }
+    { level: 3, amount: "3,000" },
+    { level: 4, amount: "5,000" },
+    { level: 5, amount: "10,000" },
+    { level: 6, amount: "20,000" },
+    { level: 7, amount: "40,000", isMilestone: true },
+    { level: 8, amount: "80,000" },
+    { level: 9, amount: "1,60,000" },
+    { level: 10, amount: "3,20,000" },
+    { level: 11, amount: "6,40,000" },
+    { level: 12, amount: "12,50,000" },
+    { level: 13, amount: "25,00,000" },
+    { level: 14, amount: "50,00,000" },
+    { level: 15, amount: "1 Crore", isMilestone: true },
+    { level: 16, amount: "7 Crores", isMilestone: true }
   ];
 
   useEffect(() => {
@@ -96,14 +99,39 @@ const Game: React.FC<GameProps> = ({ name }) => {
   }, [timer]);
 
   const nextQuestion = () => {
-    if (questionIndex < questions.length - 1) {
-      setQuestionIndex((prev) => prev + 1);
-      setTimer(60); // Reset timer
-    } else {
-      alert("Game Over!");
+    if (selectedAnswer === null) {
+      alert("Please select an answer!");
+      return;
     }
-    setSelectedAnswer(null);
+  
+    if (questions[questionIndex].correct_answer === selectedAnswer) {
+      if (questionIndex < questions.length - 1) {
+        setQuestionIndex((prev) => prev + 1);
+        setTimer(60); // Reset timer
+        setSelectedAnswer(null);
+      } else {
+        alert("Congratulations! You have completed the game!");
+      }
+    } else {
+      // If first question is wrong, final reward should be 0
+      if (questionIndex === 0) {
+        setFinalReward("0");
+      } else {
+        // Find the last milestone before current level
+        let lastMilestone = "0";
+        for (let i = questionIndex; i >= 0; i--) {
+          if (prizeLevels[i].isMilestone) {
+            lastMilestone = prizeLevels[i].amount;
+            break;
+          }
+        }
+        setFinalReward(lastMilestone);
+      }
+  
+      setGameOver(true); // Stop the game
+    }
   };
+  
 
 
   const generateDots = () => {
@@ -134,6 +162,35 @@ const Game: React.FC<GameProps> = ({ name }) => {
 
   // }
 
+  if (gameOver) {
+    return (
+      <div className="bg-black w-screen h-screen flex flex-col items-center justify-center text-white">
+        <h1 className="text-5xl font-bold text-red-500">Game Over!</h1>
+        <p className="text-2xl mt-4">Your final reward: ₹{finalReward}</p>
+
+        <div className="mt-6 flex gap-4">
+          <button
+            onClick={() => {
+              setGameOver(false); // Restart game
+              setQuestionIndex(0);
+              setSelectedAnswer(null);
+              setTimer(60);
+            }}
+            className="bg-blue-500 px-6 py-2 rounded-lg text-white font-bold hover:bg-blue-700"
+          >
+            Play Again
+          </button>
+
+          <button
+            onClick={() => navigate("/login")} // Reload page for exit
+            className="bg-red-500 px-6 py-2 rounded-lg text-white font-bold hover:bg-red-700"
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-b from-black to-purple-900 w-screen h-screen flex flex-col items-center justify-center p-8">
@@ -167,10 +224,13 @@ const Game: React.FC<GameProps> = ({ name }) => {
               <button
                 key={index}
                 onClick={() => setSelectedAnswer(index)}
+
                 className={`p-4 text-white text-lg font-semibold ${selectedAnswer === index ? "bg-orange-500" : "bg-gradient-to-r from-purple-900 to-black"
                   } rounded-lg border-2 border-x-zinc-500 hover:bg-blue-700 transition-colors flex items-center`}
               >
+
                 <span className="mr-3">{String.fromCharCode(65 + index)}:</span>
+
                 {option}
               </button>
             ))}
