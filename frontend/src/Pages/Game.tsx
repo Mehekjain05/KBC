@@ -298,7 +298,7 @@ const Game: React.FC<GameProps> = ({ name }) => {
       </div>
 
       {/* Game Controls */}
-      <div className="absolute top-6 left-4 flex gap-16">
+      <div className="absolute top-6 left-4 flex lg:gap-16 md:gap-8 sm:gap-5">
         <button className="text-white p-2 rounded-full">
           <svg
             className="w-6 h-6"
@@ -314,28 +314,28 @@ const Game: React.FC<GameProps> = ({ name }) => {
             />
           </svg>
         </button>
-        <button className="text-white text-md bg-purple-950 justify-items-center w-64 rounded-full border border-[#FFD700]">
+        <button className="text-white sm:w-16 sm:text-sm lg:text-md bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
           <b>50 : 50</b>
         </button>
 
-        <button className="text-white bg-purple-950 justify-items-center w-64 rounded-full border border-[#FFD700]">
+        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
           <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
             <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd" />
           </svg>
         </button>
 
-        <button className="text-white bg-purple-950 justify-items-center w-64 rounded-full border border-[#FFD700]">
+        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
           <img src={chat} alt="ai" className="w-8" />
         </button>
 
-        <button className="text-white bg-purple-950 justify-items-center w-64 rounded-full border border-[#FFD700]">
+        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
           <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16 10 3-3m0 0-3-3m3 3H5v3m3 4-3 3m0 0 3 3m-3-3h14v-3" />
           </svg>
 
         </button>
 
-        <button className="text-white">Welcome, {name || 'Player'}!!</button>
+        <button className="text-white sm:text-sm md:text-md">Welcome, {name || 'Player'}!!</button>
 
         <button
           onClick={toggleDrawer}
