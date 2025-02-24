@@ -1,72 +1,49 @@
 import React, { useState, useEffect } from "react";
-import chat from '../assets/chat.png'
+import chat from '../assets/chat.png';
 import { useNavigate } from "react-router-dom";
+
 interface PrizeLevel {
   level: number;
   amount: string;
   isMilestone?: boolean;
 }
+
 interface GameProps {
   name: string;
 }
+
 interface Question {
   question: string;
   options: string[];
   correct_answer: number;
 }
 
+interface Option {
+  text: string;
+  isCorrect: boolean;
+  hidden?: boolean;
+}
 
 const Game: React.FC<GameProps> = ({ name }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [timer, setTimer] = useState(60);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [finalReward, setFinalReward] = useState(""); // Track final reward
-
-
-  // const questions = [
-  //   {
-  //     question: "What was Draco Malfoy's screen name in the film Study?",
-  //     options: ["Scorpius", "Draco", "Milli", "Cuthbert"],
-  //     correctAnswer: 1,
-  //   },
-  //   {
-  //     question: "Which planet is known as the Red Planet?",
-  //     options: ["Earth", "Mars", "Jupiter", "Venus"],
-  //     correctAnswer: 1,
-  //   },
-  //   {
-  //     question: "Who wrote 'To Kill a Mockingbird'?",
-  //     options: ["J.K. Rowling", "Harper Lee", "Mark Twain", "Ernest Hemingway"],
-  //     correctAnswer: 1,
-  //   },
-  // ];
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('api/generate_questions');
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        console.log(json);
-        setQuestions(json.Questions || []);
-      } catch (e) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const [options, setOptions] = useState<Option[]>([]);
+  const [usedControls, setUsedControls] = useState({
+    fiftyFifty: false,
+    askAudience: false,
+    phoneAFriend: false,
+    swapQuestion: false,
+  });
 
   const navigate = useNavigate();
+  
   const prizeLevels: PrizeLevel[] = [
     { level: 1, amount: "1,000" },
     { level: 2, amount: "2,000" },
@@ -86,6 +63,91 @@ const Game: React.FC<GameProps> = ({ name }) => {
     { level: 16, amount: "7 Crores", isMilestone: true }
   ];
 
+  // Prepare options when a question changes
+  useEffect(() => {
+    if (questions.length > 0 && questionIndex < questions.length) {
+      const currentQuestion = questions[questionIndex];
+      const newOptions = currentQuestion.options.map((option, idx) => ({
+        text: option,
+        isCorrect: idx === currentQuestion.correct_answer,
+        hidden: false
+      }));
+      setOptions(newOptions);
+    }
+  }, [questions, questionIndex]);
+
+  // 50:50 Lifeline - Removes two incorrect answers
+  const handleFiftyFifty = () => {
+    if (usedControls.fiftyFifty) return;
+
+    const incorrectOptions = options.filter(opt => !opt.isCorrect);
+    const optionsToRemove = incorrectOptions.sort(() => 0.5 - Math.random()).slice(0, 2);
+    const newOptions = options.map(opt => {
+      const found = optionsToRemove.some(removeOpt => removeOpt.text === opt.text);
+      return found ? { ...opt, hidden: true } : opt;
+    });
+    setOptions(newOptions);
+    setUsedControls(prev => ({ ...prev, fiftyFifty: true }));
+  };
+
+  // Ask the Audience - Simulate AI Poll
+  const handleAskAudience = () => {
+    if (usedControls.askAudience) return;
+
+    alert("Audience suggests: " + options.sort(() => 0.5 - Math.random())[0].text);
+    setUsedControls(prev => ({ ...prev, askAudience: true }));
+  };
+
+  // Phone a Friend - Simulated Expert Response
+  const handlePhoneAFriend = () => {
+    if (usedControls.phoneAFriend) return;
+
+    const correctOption = options.find(opt => opt.isCorrect);
+    if (correctOption) {
+      alert("Expert suggests: " + correctOption.text);
+    }
+    setUsedControls(prev => ({ ...prev, phoneAFriend: true }));
+  };
+
+  // Swap Question - Get a New Question
+  const handleSwapQuestion = () => {
+    if (usedControls.swapQuestion) return;
+
+    getNextQuestion(); // Function to fetch a new question
+    setUsedControls(prev => ({ ...prev, swapQuestion: true }));
+  };
+
+  // Get next question - helper for swap question
+  const getNextQuestion = () => {
+    // In a real app, this would fetch a new question
+    // For now, we'll just increment the index if possible
+    if (questionIndex < questions.length - 1) {
+      setQuestionIndex(prev => prev + 1);
+      setTimer(60);
+      setSelectedAnswer(null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('api/generate_questions');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const json = await response.json();
+        console.log(json);
+        setQuestions(json.Questions || []);
+      } catch (e) {
+        setError(e instanceof Error ? e : new Error('Unknown error occurred'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (timer === 0) {
       nextQuestion();
@@ -103,36 +165,36 @@ const Game: React.FC<GameProps> = ({ name }) => {
       alert("Please select an answer!");
       return;
     }
-  
-    if (questions[questionIndex].correct_answer === selectedAnswer) {
-      if (questionIndex < questions.length - 1) {
-        setQuestionIndex((prev) => prev + 1);
-        setTimer(60); // Reset timer
-        setSelectedAnswer(null);
-      } else {
-        alert("Congratulations! You have completed the game!");
-      }
-    } else {
-      // If first question is wrong, final reward should be 0
-      if (questionIndex === 0) {
-        setFinalReward("0");
-      } else {
-        // Find the last milestone before current level
-        let lastMilestone = "0";
-        for (let i = questionIndex; i >= 0; i--) {
-          if (prizeLevels[i].isMilestone) {
-            lastMilestone = prizeLevels[i].amount;
-            break;
-          }
+
+    if (questions.length > 0 && questionIndex < questions.length) {
+      if (questions[questionIndex].correct_answer === selectedAnswer) {
+        if (questionIndex < questions.length - 1) {
+          setQuestionIndex((prev) => prev + 1);
+          setTimer(60); // Reset timer
+          setSelectedAnswer(null);
+        } else {
+          alert("Congratulations! You have completed the game!");
         }
-        setFinalReward(lastMilestone);
+      } else {
+        // If first question is wrong, final reward should be 0
+        if (questionIndex === 0) {
+          setFinalReward("0");
+        } else {
+          // Find the last milestone before current level
+          let lastMilestone = "0";
+          for (let i = questionIndex; i >= 0; i--) {
+            if (prizeLevels[i] && prizeLevels[i].isMilestone) {
+              lastMilestone = prizeLevels[i].amount;
+              break;
+            }
+          }
+          setFinalReward(lastMilestone);
+        }
+
+        setGameOver(true); // Stop the game
       }
-  
-      setGameOver(true); // Stop the game
     }
   };
-  
-
 
   const generateDots = () => {
     const dots = [];
@@ -155,13 +217,6 @@ const Game: React.FC<GameProps> = ({ name }) => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  // const userName = async () => {
-  //   const response = await fetch('/api/get_username');
-  //   const data = await response.json();
-  //   setUser(data.username);
-
-  // }
-
   if (gameOver) {
     return (
       <div className="bg-black w-screen h-screen flex flex-col items-center justify-center text-white">
@@ -171,7 +226,7 @@ const Game: React.FC<GameProps> = ({ name }) => {
         <div className="mt-6 flex gap-4">
           <button
             onClick={() => {
-              setGameOver(false); // Restart game
+              setGameOver(true); // Restart game
               setQuestionIndex(0);
               setSelectedAnswer(null);
               setTimer(60);
@@ -210,7 +265,7 @@ const Game: React.FC<GameProps> = ({ name }) => {
 
           {/* Question & Answers */}
           <div className="w-full max-w-5xl mb-10 mt-16">
-            {questions.length > 0 && questions[questionIndex] ? (
+            {questions.length > 0 && questionIndex < questions.length ? (
               <div className="bg-gradient-to-r from-purple-900 to-black text-white p-6 rounded-lg text-center text-xl font-semibold border-2 border-x-zinc-500">
                 {questions[questionIndex].question}
               </div>
@@ -220,19 +275,18 @@ const Game: React.FC<GameProps> = ({ name }) => {
           </div>
 
           <div className="w-full max-w-5xl grid grid-cols-2 gap-4">
-            {questions[questionIndex].options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedAnswer(index)}
-
-                className={`p-4 text-white text-lg font-semibold ${selectedAnswer === index ? "bg-orange-500" : "bg-gradient-to-r from-purple-900 to-black"
-                  } rounded-lg border-2 border-x-zinc-500 hover:bg-blue-700 transition-colors flex items-center`}
-              >
-
-                <span className="mr-3">{String.fromCharCode(65 + index)}:</span>
-
-                {option}
-              </button>
+            {questions.length > 0 && questionIndex < questions.length && options.map((option, index) => (
+              !option.hidden && (
+                <button
+                  key={index}
+                  onClick={() => setSelectedAnswer(index)}
+                  className={`p-4 text-white text-lg font-semibold ${selectedAnswer === index ? "bg-orange-500" : "bg-gradient-to-r from-purple-900 to-black"
+                    } rounded-lg border-2 border-x-zinc-500 hover:bg-blue-700 transition-colors flex items-center`}
+                >
+                  <span className="mr-3">{String.fromCharCode(65 + index)}:</span>
+                  {option.text}
+                </button>
+              )
             ))}
           </div>
 
@@ -314,39 +368,52 @@ const Game: React.FC<GameProps> = ({ name }) => {
             />
           </svg>
         </button>
-        <button className="text-white sm:w-16 sm:text-sm lg:text-md bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
+        <button 
+          onClick={handleFiftyFifty}
+          className={`text-white sm:w-16 sm:text-sm lg:text-md bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700] ${usedControls.fiftyFifty ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={usedControls.fiftyFifty}
+        >
           <b>50 : 50</b>
         </button>
 
-        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
+        <button 
+          onClick={handleAskAudience}
+          className={`text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700] ${usedControls.askAudience ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={usedControls.askAudience}
+        >
           <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd" />
+            <path fillRule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clipRule="evenodd" />
           </svg>
         </button>
 
-        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
+        <button 
+          onClick={handlePhoneAFriend}
+          className={`text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700] ${usedControls.phoneAFriend ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={usedControls.phoneAFriend}
+        >
           <img src={chat} alt="ai" className="w-8" />
         </button>
 
-        <button className="text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700]">
+        <button 
+          onClick={handleSwapQuestion}
+          className={`text-white sm:w-16 bg-purple-950 justify-items-center md:w-32 lg:w-64 rounded-full border border-[#FFD700] ${usedControls.swapQuestion ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={usedControls.swapQuestion}
+        >
           <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16 10 3-3m0 0-3-3m3 3H5v3m3 4-3 3m0 0 3 3m-3-3h14v-3" />
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16 10 3-3m0 0-3-3m3 3H5v3m3 4-3 3m0 0 3 3m-3-3h14v-3" />
           </svg>
-
         </button>
 
         <button className="text-white sm:text-sm md:text-md">Welcome, {name || 'Player'}!!</button>
 
         <button
           onClick={toggleDrawer}
-          className="text-white font-medium rounded-lg text-sm px-5 py-2.5 "
+          className="text-white font-medium rounded-lg text-sm px-5 py-2.5"
         >
           <svg className="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14" />
+            <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14" />
           </svg>
-
         </button>
-
       </div>
     </div>
   );
