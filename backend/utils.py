@@ -5,7 +5,7 @@ import ast
 
 load_dotenv()
 prompt = '''
-Generate 16 questions covering general knowledge topics such as world news, Indian history, global geography, the Indian film industry, Indian religions, economics, and other common knowledge areas. Start with low difficulty and gradually increase it with each level. Provide four options for each question, ensuring only one is correct while the others are closely related.
+Generate 16 questions covering general knowledge topics such as world news, Indian history, global geography, the Indian film industry, Indian religions, economics, science, popular politics, sports, economics, arts, and current affair. Ensure the questions generated should be random topics from above. Start with low difficulty and gradually increase it with each level. Provide four options for each question, ensuring only one is correct while the others are closely related.
 Output format - 
 The output should strictly be in JSON format consisting with one key "output". The corresponding value should be a list of dictionaries with the following keys:
 

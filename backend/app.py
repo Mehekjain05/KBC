@@ -6,6 +6,9 @@ from flask_bcrypt import Bcrypt
 from utils import question_answer_generation
 import json
 import re
+import sys
+sys.dont_write_bytecode = True
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app) 
